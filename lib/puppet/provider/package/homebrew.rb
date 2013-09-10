@@ -29,7 +29,7 @@ Puppet::Type.type(:package).provide :homebrew, :parent => Puppet::Provider::Pack
     end
     
    begin
-       list = execute(command).split("\n").collect do |set|
+       list = execute(command, :custom_environment => {'HOME'=>ENV['HOME']}).split("\n").collect do |set|
          if brewhash = brewsplit(set)
            brewhash[:provider] = :brew
            brewhash
