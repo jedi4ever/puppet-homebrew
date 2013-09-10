@@ -18,7 +18,7 @@ Puppet::Type.type(:package).provide :homebrew, :parent => Puppet::Provider::Pack
       environment({ 'HOME' => ENV['HOME'] })
     end
   else
-    commands :brew => "/usr/local/bin/brew"
+    commands :brewcmd => "/usr/local/bin/brew"
   end
 
   def self.brewlist(hash)
