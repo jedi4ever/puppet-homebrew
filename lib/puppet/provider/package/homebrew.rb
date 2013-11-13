@@ -12,6 +12,8 @@ require 'puppet/provider/package'
 Puppet::Type.type(:package).provide :homebrew, :parent => Puppet::Provider::Package do
   desc "Package management using homebrew on OS X."
 
+  has_feature :install_options
+
   confine :operatingsystem => :darwin
   if Puppet::Util::Package.versioncmp(Puppet.version, '3.0') >= 0
     has_command(:brewcmd, "/usr/local/bin/brew") do
@@ -49,6 +51,10 @@ Puppet::Type.type(:package).provide :homebrew, :parent => Puppet::Provider::Pack
 
   end
 
+  def install_options
+    Array(resource[:install_options]).flatten.compact
+  end
+
   def self.brewsplit(desc)
       split_desc=desc.split(/ /)
       name=split_desc[0]
@@ -73,7 +79,12 @@ Puppet::Type.type(:package).provide :homebrew, :parent => Puppet::Provider::Pack
   def install
     should = @resource.should(:ensure)
 
-    output = brewcmd "install", @resource[:name]
+    if install_options.any?
+      output = brewcmd "install", @resource[:name], *install_options
+    else
+      output = brewcmd "install", @resource[:name]
+    end
+
     if output =~ /^Error: No available formula/
       raise Puppet::ExecutionFailure, "Could not find package #{@resource[:name]}"
     end
